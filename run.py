@@ -1,4 +1,4 @@
-""" Main module for the main program. """
+""" The entry point for the test suite. """
 
 import sys
 from argparse import ArgumentParser, Namespace
@@ -23,7 +23,7 @@ def get_args() -> Namespace:
 
 
 def main() -> int:
-  """ Entrypoint for the main module of the main program. """
+  """ Entrypoint for the main module of the test suite. """
   args = get_args()
 
   if args.versions:

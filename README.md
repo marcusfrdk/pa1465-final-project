@@ -44,3 +44,26 @@ _Note: To leave the virtual environment, run the command `deactivate`_
 ```bash
 pip install -r requirements.txt
 ```
+
+## Run
+
+### All tests
+
+```bash
+python run.py
+```
+
+### Only test different versions
+
+```bash
+python run.py --versions
+```
+
+### Only test different operating systems
+
+```bash
+python run.py --operating-systems
+```
+
+_Note: You can use any combination of flags_
+
