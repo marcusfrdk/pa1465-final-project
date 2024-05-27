@@ -1,0 +1,134 @@
+name: Run Python Script on Multiple OS
+
+on: [push, pull_request]
+
+jobs:
+  run-script:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.9, 3.11, 3.12]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Python script
+        run: |
+          python main.py
+
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: output-${{ matrix.os }}-${{ matrix.python-version }}
+          path: results.txt
+
+  compare-outputs:
+    needs: run-script
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Download all artifacts
+      - name: Download Ubuntu Python 3.9 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-ubuntu-latest-3.9
+          path: output-ubuntu-latest-3.9.txt
+
+      - name: Download Ubuntu Python 3.11 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-ubuntu-latest-3.11
+          path: output-ubuntu-latest-3.11.txt
+
+      - name: Download Ubuntu Python 3.12 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-ubuntu-latest-3.12
+          path: output-ubuntu-latest-3.12.txt
+
+      - name: Download Windows Python 3.9 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-windows-latest-3.9
+          path: output-windows-latest-3.9.txt
+
+      - name: Download Windows Python 3.11 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-windows-latest-3.11
+          path: output-windows-latest-3.11.txt
+
+      - name: Download Windows Python 3.12 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-windows-latest-3.12
+          path: output-windows-latest-3.12.txt
+
+      - name: Download macOS Python 3.9 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-macos-latest-3.9
+          path: output-macos-latest-3.9.txt
+
+      - name: Download macOS Python 3.11 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-macos-latest-3.11
+          path: output-macos-latest-3.11.txt
+
+      - name: Download macOS Python 3.12 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: output-macos-latest-3.12
+          path: output-macos-latest-3.12.txt
+
+      # Compare outputs
+      - name: Compare Ubuntu outputs
+        run: |
+          diff output-ubuntu-latest-3.9.txt output-ubuntu-latest-3.11.txt || true
+          diff output-ubuntu-latest-3.9.txt output-ubuntu-latest-3.12.txt || true
+          diff output-ubuntu-latest-3.11.txt output-ubuntu-latest-3.12.txt || true
+
+      - name: Compare Windows outputs
+        run: |
+          diff output-windows-latest-3.9.txt output-windows-latest-3.11.txt || true
+          diff output-windows-latest-3.9.txt output-windows-latest-3.12.txt || true
+          diff output-windows-latest-3.11.txt output-windows-latest-3.12.txt || true
+
+      - name: Compare macOS outputs
+        run: |
+          diff output-macos-latest-3.9.txt output-macos-latest-3.11.txt || true
+          diff output-macos-latest-3.9.txt output-macos-latest-3.12.txt || true
+          diff output-macos-latest-3.11.txt output-macos-latest-3.12.txt || true
+
+      - name: Compare cross-OS outputs for Python 3.9
+        run: |
+          diff output-ubuntu-latest-3.9.txt output-windows-latest-3.9.txt || true
+          diff output-ubuntu-latest-3.9.txt output-macos-latest-3.9.txt || true
+          diff output-windows-latest-3.9.txt output-macos-latest-3.9.txt || true
+
+      - name: Compare cross-OS outputs for Python 3.11
+        run: |
+          diff output-ubuntu-latest-3.11.txt output-windows-latest-3.11.txt || true
+          diff output-ubuntu-latest-3.11.txt output-macos-latest-3.11.txt || true
+          diff output-windows-latest-3.11.txt output-macos-latest-3.11.txt || true
+
+      - name: Compare cross-OS outputs for Python 3.12
+        run: |
+          diff output-ubuntu-latest-3.12.txt output-windows-latest-3.12.txt || true
+          diff output-ubuntu-latest-3.12.txt output-macos-latest-3.12.txt || true
+          diff output-windows-latest-3.12.txt output-macos-latest-3.12.txt || true
